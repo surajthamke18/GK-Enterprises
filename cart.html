@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart - G.K. Enterprises</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<header>
+    <h1>G.K. Enterprises</h1>
+    <p>Quality Housekeeping Materials</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="cart.html">Cart <span id="cart-count"></span></a>
+    <a href="about.html">About Us</a>
+    <a href="contact.html">Contact</a>
+</nav>
+
+<main class="container">
+    <h2>My Shopping Cart</h2>
+    <div id="cart-items"></div>
+    <div id="cart-total"></div>
+
+    <p class="center-button">
+        <a class="shop-button" href="products.html">Continue Shopping</a>
+    </p>
+</main>
+
+<footer>
+    <p>© 2026 G.K. Enterprises | Teli Galli, Andheri East, Mumbai</p>
+</footer>
+
+<script src="static/cart.js"></script>
+<script>
+function displayCart() {
+    const cartItems = document.getElementById("cart-items");
+    const cartTotal = document.getElementById("cart-total");
+    const cart = getCart();
+
+    cartItems.innerHTML = "";
+    cartTotal.innerHTML = "";
+
+    const ids = Object.keys(cart).filter(id => cart[id] > 0);
+
+    if (ids.length === 0) {
+        cartItems.innerHTML = `
+            <p>Your cart is empty.</p>
+            <a class="shop-button" href="products.html">Start Shopping</a>
+        `;
+        updateCartCount();
+        return;
+    }
+
+    let total = 0;
+
+    ids.forEach(id => {
+        const product = PRODUCT_DATA.find(item => item.id === Number(id));
+        if (!product) return;
+
+        const quantity = cart[id];
+        const subtotal = product.price * quantity;
+        total += subtotal;
+
+        const item = document.createElement("div");
+        item.className = "cart-item";
+
+        item.innerHTML = `
+            <img src="static/images/${product.image}" alt="${product.name}"
+                 onerror="this.style.display='none'">
+            <div class="cart-item-details">
+                <h3>${product.name}</h3>
+                <p>Price: ₹${product.price}</p>
+                <p>Subtotal: <strong>₹${subtotal}</strong></p>
+
+                <div class="quantity-controls cart-controls">
+                    <button type="button" class="decrease">−</button>
+                    <span class="cart-quantity-number">${quantity}</span>
+                    <button type="button" class="increase" ${quantity >= 99 ? "disabled" : ""}>+</button>
+                </div>
+
+                <button type="button" class="remove-button">Remove</button>
+            </div>
+        `;
+
+        item.querySelector(".decrease").addEventListener("click", () => {
+            changeCartQuantity(product.id, -1);
+            displayCart();
+        });
+
+        item.querySelector(".increase").addEventListener("click", () => {
+            changeCartQuantity(product.id, 1);
+            displayCart();
+        });
+
+        item.querySelector(".remove-button").addEventListener("click", () => {
+            removeFromCart(product.id);
+            displayCart();
+        });
+
+        cartItems.appendChild(item);
+    });
+
+    cartTotal.innerHTML = `<h2 class="total-amount">Total Amount: ₹${total}</h2>`;
+    updateCartCount();
+}
+
+displayCart();
+</script>
+</body>
+</html>

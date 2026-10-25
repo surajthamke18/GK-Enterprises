@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - G.K. Enterprises</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<header>
+    <h1>G.K. Enterprises</h1>
+    <p>Quality Housekeeping Materials</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="cart.html">Cart <span id="cart-count"></span></a>
+    <a href="about.html">About Us</a>
+    <a href="contact.html">Contact</a>
+</nav>
+
+<main class="container">
+    <h2>Our Products</h2>
+    <p class="section-description">
+        Choose the products you need and add them to your cart.
+    </p>
+
+    <div class="products" id="products-list"></div>
+
+    <p class="center-button">
+        <a class="shop-button" href="cart.html">View Cart →</a>
+    </p>
+</main>
+
+<footer>
+    <p>© 2026 G.K. Enterprises | Teli Galli, Andheri East, Mumbai</p>
+</footer>
+
+<script src="static/cart.js"></script>
+<script>
+const products = [
+    {id:1, name:"Broom", price:120, image:"broom.jpg",
+     description:"Useful broom for cleaning floors."},
+    {id:2, name:"Bucket", price:180, image:"bucket.jpg",
+     description:"Strong bucket for household cleaning."},
+    {id:3, name:"Toilet Cleaner Brush", price:80, image:"toilet_brush.jpg",
+     description:"Brush for easy toilet cleaning."},
+    {id:4, name:"Floor Cleaner", price:120, image:"floor_cleaner.jpg",
+     description:"Liquid for regular floor cleaning."},
+    {id:5, name:"Scotch Brite", price:40, image:"scotch_brite.jpg",
+     description:"Scrubber for cleaning surfaces."},
+    {id:6, name:"Cleaning Cloth", price:60, image:"cleaning_cloth.jpg",
+     description:"Cloth for home and office cleaning."},
+    {id:7, name:"Dustpan", price:70, image:"dustpan.jpg",
+     description:"Useful for collecting dust and waste."},
+    {id:8, name:"Floor Mop", price:150, image:"floor_mop.jpg",
+     description:"Mop for regular floor cleaning."},
+    {id:9, name:"Harpic", price:110, image:"harpic.jpg",
+     description:"Liquid for toilet cleaning."},
+    {id:10, name:"Naphthalene Balls", price:60, image:"naphthalene_balls.jpg",
+     description:"Useful for storage areas."},
+    {id:11, name:"Room Freshener", price:100, image:"room_freshener.jpg",
+     description:"Helps keep rooms fresh."},
+    {id:12, name:"Hand Gloves", price:80, image:"hand_gloves.jpg",
+     description:"Gloves for cleaning work."}
+];
+
+const productList = document.getElementById("products-list");
+
+products.forEach(product => {
+    const card = document.createElement("div");
+    card.className = "product-card";
+
+    card.innerHTML = `
+        <img src="static/images/${product.image}"
+             alt="${product.name}"
+             onerror="this.style.display='none'">
+        <h3>${product.name}</h3>
+        <p>${product.description}</p>
+        <p class="price">₹${product.price}</p>
+        <p class="availability">Available</p>
+
+        <div class="quantity-controls">
+            <button type="button" class="quantity-minus">−</button>
+            <input type="number" value="1" min="1" max="99"
+                   aria-label="Quantity for ${product.name}">
+            <button type="button" class="quantity-plus">+</button>
+        </div>
+
+        <button type="button" class="add-cart-button">Add to Cart</button>
+    `;
+
+    const quantityInput = card.querySelector("input");
+
+    card.querySelector(".quantity-minus").addEventListener("click", () => {
+        quantityInput.value = Math.max(1, (parseInt(quantityInput.value) || 1) - 1);
+    });
+
+    card.querySelector(".quantity-plus").addEventListener("click", () => {
+        quantityInput.value = Math.min(99, (parseInt(quantityInput.value) || 1) + 1);
+    });
+
+    card.querySelector(".add-cart-button").addEventListener("click", () => {
+        const quantity = Math.min(99, Math.max(1, parseInt(quantityInput.value) || 1));
+        addToCart(product.id, quantity);
+        alert(product.name + " added to cart!");
+    });
+
+    productList.appendChild(card);
+});
+</script>
+</body>
+</html>
