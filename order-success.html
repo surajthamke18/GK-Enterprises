@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - G.K. Enterprises</title>
+    <link rel="stylesheet" href="static/style.css">
+
+    <style>
+        .success-box {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 30px 20px;
+            text-align: center;
+            background: #f0f8f2;
+            border: 1px solid #c8e6ce;
+            border-radius: 14px;
+        }
+
+        .success-icon {
+            font-size: 65px;
+            color: #218449;
+        }
+
+        .success-box h2 {
+            color: #218449;
+        }
+
+        .order-details {
+            background: white;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 10px;
+            text-align: left;
+            overflow-wrap: anywhere;
+        }
+
+        .order-details h3 {
+            color: #163a5c;
+        }
+
+        .success-actions {
+            margin-top: 25px;
+        }
+
+        .success-actions .shop-button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>G.K. Enterprises</h1>
+    <p>Quality Housekeeping Materials</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="cart.html">Cart <span id="cart-count"></span></a>
+    <a href="about.html">About Us</a>
+    <a href="contact.html">Contact</a>
+</nav>
+
+<main class="container">
+    <div class="success-box">
+        <div class="success-icon">✓</div>
+
+        <h2>Thank You for Shopping!</h2>
+
+        <p>Your order has been placed successfully.</p>
+
+        <p>Thank you for choosing G.K. Enterprises.</p>
+
+        <div class="order-details">
+            <h3>Order Details</h3>
+
+            <p><strong>Order Number:</strong> <span id="order-number"></span></p>
+            <p><strong>Customer Name:</strong> <span id="customer-name"></span></p>
+            <p><strong>Mobile Number:</strong> <span id="customer-phone"></span></p>
+            <p><strong>Delivery Address:</strong> <span id="customer-address"></span></p>
+            <p><strong>Order Date:</strong> <span id="order-date"></span></p>
+
+            <h3>Products Ordered</h3>
+            <div id="ordered-products"></div>
+
+            <h3 id="order-total"></h3>
+        </div>
+
+        <div class="success-actions">
+            <a href="products.html" class="shop-button">
+                Continue Shopping →
+            </a>
+
+            <a href="index.html" class="shop-button">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 G.K. Enterprises | Teli Galli, Andheri East, Mumbai</p>
+</footer>
+
+<script src="static/cart.js"></script>
+
+<script>
+const orderText = localStorage.getItem("gkLastOrder");
+
+if (!orderText) {
+    document.querySelector(".success-box").innerHTML = `
+        <h2>No Order Found</h2>
+        <p>Please add products to your cart and complete checkout first.</p>
+        <a href="products.html" class="shop-button">Start Shopping →</a>
+    `;
+} else {
+    try {
+        const order = JSON.parse(orderText);
+
+        if (!order || !Array.isArray(order.items) || order.items.length === 0) {
+            throw new Error("Invalid order");
+        }
+
+        document.getElementById("order-number").textContent = order.orderNumber;
+        document.getElementById("customer-name").textContent = order.customerName;
+        document.getElementById("customer-phone").textContent = order.phone;
+        document.getElementById("customer-address").textContent = order.address;
+        document.getElementById("order-date").textContent = order.orderDate;
+
+        const productsContainer = document.getElementById("ordered-products");
+
+        order.items.forEach(item => {
+            const row = document.createElement("p");
+
+            row.textContent =
+                item.name + " × " + item.quantity + " = ₹" + item.subtotal;
+
+            productsContainer.appendChild(row);
+        });
+
+        document.getElementById("order-total").textContent =
+            "Total Amount: ₹" + order.total;
+
+    } catch (error) {
+        document.querySelector(".success-box").innerHTML = `
+            <h2>Order Details Unavailable</h2>
+            <p>We could not read the saved order details.</p>
+            <a href="products.html" class="shop-button">Continue Shopping →</a>
+        `;
+    }
+}
+</script>
+
+</body>
+</html>

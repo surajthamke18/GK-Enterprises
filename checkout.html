@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - G.K. Enterprises</title>
+    <link rel="stylesheet" href="static/style.css">
+
+    <style>
+        .checkout-form {
+            max-width: 650px;
+            margin: 25px auto;
+        }
+
+        .checkout-form label {
+            display: block;
+            font-weight: bold;
+            margin: 15px 0 5px;
+        }
+
+        .checkout-form input,
+        .checkout-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccd5df;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+
+        .checkout-summary {
+            background: #f0f6fb;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .checkout-summary h3 {
+            color: #163a5c;
+        }
+
+        .checkout-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 480px) {
+            .checkout-actions .shop-button {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>G.K. Enterprises</h1>
+    <p>Quality Housekeeping Materials</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="cart.html">Cart <span id="cart-count"></span></a>
+    <a href="about.html">About Us</a>
+    <a href="contact.html">Contact</a>
+</nav>
+
+<main class="container">
+    <h2>Checkout</h2>
+
+    <p>Please enter your details to continue with your order.</p>
+
+    <div class="checkout-summary">
+        <h3>Order Summary</h3>
+        <div id="order-summary"></div>
+        <h3 id="checkout-total"></h3>
+    </div>
+
+    <form id="checkout-form" class="checkout-form">
+
+        <h3>Customer Details</h3>
+
+        <label for="customer-name">Full Name</label>
+        <input
+            type="text"
+            id="customer-name"
+            name="name"
+            required
+            maxlength="100"
+            autocomplete="name"
+        >
+
+        <label for="customer-phone">Mobile Number</label>
+        <input
+            type="tel"
+            id="customer-phone"
+            name="phone"
+            required
+            pattern="[6-9][0-9]{9}"
+            maxlength="10"
+            inputmode="numeric"
+            autocomplete="tel"
+            title="Enter a valid 10-digit Indian mobile number"
+        >
+
+        <label for="customer-address">Delivery Address</label>
+        <textarea
+            id="customer-address"
+            name="address"
+            rows="4"
+            required
+            maxlength="500"
+            autocomplete="street-address"
+        ></textarea>
+
+        <div class="checkout-actions">
+            <a href="cart.html" class="shop-button">
+                ← Back to Cart
+            </a>
+
+            <button type="submit" class="shop-button">
+                Place Order →
+            </button>
+        </div>
+
+    </form>
+</main>
+
+<footer>
+    <p>© 2026 G.K. Enterprises | Teli Galli, Andheri East, Mumbai</p>
+</footer>
+
+<script src="static/cart.js"></script>
+
+<script>
+const summary = document.getElementById("order-summary");
+const checkoutTotal = document.getElementById("checkout-total");
+const checkoutForm = document.getElementById("checkout-form");
+
+function displayOrderSummary() {
+    const cart = getCart();
+
+    summary.innerHTML = "";
+    checkoutTotal.textContent = "";
+
+    let total = 0;
+    let hasProducts = false;
+
+    Object.keys(cart).forEach(id => {
+        const product = PRODUCT_DATA.find(
+            item => item.id === Number(id)
+        );
+
+        const quantity = Number(cart[id]);
+
+        if (!product || !Number.isInteger(quantity) ||
+            quantity < 1 || quantity > 99) {
+            return;
+        }
+
+        hasProducts = true;
+
+        const subtotal = product.price * quantity;
+        total += subtotal;
+
+        const row = document.createElement("p");
+        row.textContent =
+            product.name + " × " + quantity + " = ₹" + subtotal;
+
+        summary.appendChild(row);
+    });
+
+    if (!hasProducts) {
+        summary.textContent = "Your cart is empty.";
+
+        const link = document.createElement("a");
+        link.href = "products.html";
+        link.className = "shop-button";
+        link.textContent = "Start Shopping";
+        summary.appendChild(document.createElement("br"));
+        summary.appendChild(link);
+
+        checkoutForm.style.display = "none";
+        return;
+    }
+
+    checkoutTotal.textContent = "Total Amount: ₹" + total;
+}
+
+checkoutForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const cart = getCart();
+    const items = [];
+    let total = 0;
+
+    for (const id of Object.keys(cart)) {
+        const product = PRODUCT_DATA.find(
+            item => item.id === Number(id)
+        );
+
+        const quantity = Number(cart[id]);
+
+        if (!product || !Number.isInteger(quantity) ||
+            quantity < 1 || quantity > 99) {
+            continue;
+        }
+
+        const subtotal = product.price * quantity;
+
+        items.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: quantity,
+            subtotal: subtotal
+        });
+
+        total += subtotal;
+    }
+
+    if (items.length === 0) {
+        alert("Your cart is empty. Please add products first.");
+        window.location.href = "products.html";
+        return;
+    }
+
+    const phone = document.getElementById("customer-phone").value.trim();
+
+    if (!/^[6-9][0-9]{9}$/.test(phone)) {
+        alert("Please enter a valid 10-digit Indian mobile number.");
+        return;
+    }
+
+    const order = {
+        orderNumber: "GK" + Date.now(),
+        customerName: document.getElementById("customer-name").value.trim(),
+        phone: phone,
+        address: document.getElementById("customer-address").value.trim(),
+        items: items,
+        total: total,
+        orderDate: new Date().toLocaleString("en-IN")
+    };
+
+    if (!order.customerName || !order.address) {
+        alert("Please enter your name and delivery address.");
+        return;
+    }
+
+    try {
+        localStorage.setItem("gkLastOrder", JSON.stringify(order));
+        localStorage.removeItem("gkCart");
+        window.location.href = "order-success.html";
+    } catch (error) {
+        alert("Unable to save the order in this browser. Please try again.");
+    }
+});
+
+displayOrderSummary();
+</script>
+
+</body>
+</html>
