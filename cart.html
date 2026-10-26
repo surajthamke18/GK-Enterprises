@@ -23,12 +23,19 @@
 
 <main class="container">
     <h2>My Shopping Cart</h2>
+
     <div id="cart-items"></div>
     <div id="cart-total"></div>
 
-    <p class="center-button">
-        <a class="shop-button" href="products.html">Continue Shopping</a>
-    </p>
+    <div id="cart-actions" class="center-button" style="display:none;">
+        <a class="shop-button" href="products.html">
+            ← Continue Shopping
+        </a>
+
+        <a class="shop-button" href="checkout.html">
+            Proceed to Checkout →
+        </a>
+    </div>
 </main>
 
 <footer>
@@ -36,42 +43,52 @@
 </footer>
 
 <script src="static/cart.js"></script>
+
 <script>
 function displayCart() {
     const cartItems = document.getElementById("cart-items");
     const cartTotal = document.getElementById("cart-total");
+    const cartActions = document.getElementById("cart-actions");
     const cart = getCart();
 
     cartItems.innerHTML = "";
     cartTotal.innerHTML = "";
+    cartActions.style.display = "none";
 
-    const ids = Object.keys(cart).filter(id => cart[id] > 0);
+    const ids = Object.keys(cart).filter(id => Number(cart[id]) > 0);
+    let total = 0;
 
     if (ids.length === 0) {
         cartItems.innerHTML = `
             <p>Your cart is empty.</p>
-            <a class="shop-button" href="products.html">Start Shopping</a>
+            <p>Add products to your cart to continue shopping.</p>
+            <a class="shop-button" href="products.html">Start Shopping →</a>
         `;
+
         updateCartCount();
         return;
     }
 
-    let total = 0;
-
     ids.forEach(id => {
-        const product = PRODUCT_DATA.find(item => item.id === Number(id));
+        const product = PRODUCT_DATA.find(
+            item => item.id === Number(id)
+        );
+
         if (!product) return;
 
-        const quantity = cart[id];
+        const quantity = Number(cart[id]);
         const subtotal = product.price * quantity;
+
         total += subtotal;
 
         const item = document.createElement("div");
         item.className = "cart-item";
 
         item.innerHTML = `
-            <img src="static/images/${product.image}" alt="${product.name}"
+            <img src="static/images/${product.image}"
+                 alt="${product.name}"
                  onerror="this.style.display='none'">
+
             <div class="cart-item-details">
                 <h3>${product.name}</h3>
                 <p>Price: ₹${product.price}</p>
@@ -79,11 +96,16 @@ function displayCart() {
 
                 <div class="quantity-controls cart-controls">
                     <button type="button" class="decrease">−</button>
+
                     <span class="cart-quantity-number">${quantity}</span>
-                    <button type="button" class="increase" ${quantity >= 99 ? "disabled" : ""}>+</button>
+
+                    <button type="button" class="increase"
+                        ${quantity >= 99 ? "disabled" : ""}>+</button>
                 </div>
 
-                <button type="button" class="remove-button">Remove</button>
+                <button type="button" class="remove-button">
+                    Remove
+                </button>
             </div>
         `;
 
@@ -105,11 +127,20 @@ function displayCart() {
         cartItems.appendChild(item);
     });
 
-    cartTotal.innerHTML = `<h2 class="total-amount">Total Amount: ₹${total}</h2>`;
+    cartTotal.innerHTML = `
+        <h2 class="total-amount">Total Amount: ₹${total}</h2>
+    `;
+
+    cartActions.style.display = "flex";
+    cartActions.style.justifyContent = "center";
+    cartActions.style.flexWrap = "wrap";
+    cartActions.style.gap = "12px";
+
     updateCartCount();
 }
 
 displayCart();
 </script>
+
 </body>
 </html>
